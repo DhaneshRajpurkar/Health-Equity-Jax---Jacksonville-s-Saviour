@@ -26,7 +26,7 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 Scan to access the mobile app:
 
 <p align="center">
-  <img src="assets/qr-code.png" alt="Mobile App QR Code" width="200"/>
+  <img src="Mobile App QR Code.png" alt="Mobile App QR Code" width="200"/>
 </p>
 
 
