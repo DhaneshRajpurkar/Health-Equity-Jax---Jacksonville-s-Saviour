@@ -13,12 +13,22 @@ pnpm dev
 # or
 bun dev
 ```
-
+## Urban planner/ City Official Website
 Open [https://health-equity-jax-jacksonville-s-sa.vercel.app/](https://health-equity-jax-jacksonville-s-sa.vercel.app/) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+
+## Citizen Mobile App
+
+Scan to access the mobile app:
+
+<p align="center">
+  <img src="assets/qr-code.png" alt="Mobile App QR Code" width="200"/>
+</p>
+
 
 ## Learn More
 
