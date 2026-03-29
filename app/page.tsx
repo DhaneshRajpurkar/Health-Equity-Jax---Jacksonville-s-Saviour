@@ -1,101 +1,112 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
+import ZipPanel from "@/components/ZipPanel";
+import RoiCalculator from "@/components/RoiCalculator";
+import ReportsFeed from "@/components/ReportsFeed";
+import PublishPost from "@/components/PublishPost";
+import type { ZipData } from "@/types";
+
+// Leaflet needs to be loaded client-side only
+const Map = dynamic(() => import("@/components/Map"), { ssr: false });
+
+const TABS = ["ROI Calculator", "Citizen Reports", "Publish Post"] as const;
+type Tab = typeof TABS[number];
+
+export default function Dashboard() {
+  const [zipData, setZipData]       = useState<ZipData[]>([]);
+  const [selectedZip, setSelectedZip] = useState<string | null>(null);
+  const [activeTab, setActiveTab]   = useState<Tab>("ROI Calculator");
+
+  useEffect(() => {
+    fetch("/api/zips")
+      .then((r) => r.json())
+      .then((data: ZipData[]) => setZipData(data));
+  }, []);
+
+  const selectedZipData = zipData.find((z) => z.zip === selectedZip) ?? null;
+
+  const avgLE = zipData.length
+    ? (zipData.reduce((s, z) => s + (z.lifeExpectancy ?? 0), 0) / zipData.filter(z => z.lifeExpectancy).length).toFixed(1)
+    : "—";
+  const minLE = zipData.length ? Math.min(...zipData.filter(z => z.lifeExpectancy).map(z => z.lifeExpectancy!)).toFixed(1) : "—";
+  const maxLE = zipData.length ? Math.max(...zipData.filter(z => z.lifeExpectancy).map(z => z.lifeExpectancy!)).toFixed(1) : "—";
+  const gap   = zipData.length ? (parseFloat(maxLE as string) - parseFloat(minLE as string)).toFixed(1) : "—";
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="h-screen w-screen bg-gray-950 text-white flex flex-col overflow-hidden">
+      {/* Header */}
+      <header className="flex items-center justify-between px-6 py-3 border-b border-gray-800 shrink-0">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight">
+            <span className="text-emerald-400">Health</span>Equity Jacksonville
+          </h1>
+          <p className="text-xs text-gray-500">Urban Planner Dashboard</p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        {/* Summary stats */}
+        <div className="hidden md:flex items-center gap-6">
+          {[
+            { label: "ZIP Codes", value: zipData.length || "—" },
+            { label: "Avg Life Expectancy", value: `${avgLE} yrs` },
+            { label: "Highest", value: `${maxLE} yrs` },
+            { label: "Lowest", value: `${minLE} yrs` },
+            { label: "Gap", value: `${gap} yrs`, highlight: true },
+          ].map(({ label, value, highlight }) => (
+            <div key={label} className="text-center">
+              <p className="text-xs text-gray-500">{label}</p>
+              <p className={`text-lg font-bold ${highlight ? "text-red-400" : "text-white"}`}>{value}</p>
+            </div>
+          ))}
+        </div>
+        <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" title="Live" />
+      </header>
+
+      {/* Main layout */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Map — center */}
+        <main className="flex-1 p-3 flex items-start justify-start pl-8">
+          <div className="w-[85%] h-[70vh] rounded-xl overflow-hidden border border-gray-800">
+            <Map
+              zipData={zipData}
+              onZipSelect={setSelectedZip}
+              selectedZip={selectedZip}
+            />
+          </div>
+        </main>
+
+        {/* Right panel */}
+        <aside className="w-96 flex flex-col border-l border-gray-800 shrink-0">
+          {/* ZIP details */}
+          <div className="h-80 border-b border-gray-800 shrink-0">
+            <ZipPanel zip={selectedZipData} />
+          </div>
+
+          {/* Tabs */}
+          <div className="flex border-b border-gray-800 shrink-0">
+            {TABS.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex-1 py-2.5 text-xs font-medium transition-colors ${
+                  activeTab === tab
+                    ? "text-emerald-400 border-b-2 border-emerald-400"
+                    : "text-gray-500 hover:text-gray-300"
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab content */}
+          <div className="flex-1 overflow-y-auto p-4">
+            {activeTab === "ROI Calculator"  && <RoiCalculator />}
+            {activeTab === "Citizen Reports" && <ReportsFeed />}
+            {activeTab === "Publish Post"    && <PublishPost preselectedZip={selectedZip} />}
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }
