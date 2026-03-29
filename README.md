@@ -23,7 +23,8 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 ## Citizen Mobile App
 
-Scan to access the mobile app:
+1. Download Expo Go. It is a free app that lets you run your project instantly. (iOS or Android)
+2. Scan to access the mobile app:
 
 <p align="center">
   <img src="Mobile App QR Code.png" alt="Mobile App QR Code" width="200"/>
